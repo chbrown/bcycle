@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 var logger = require('loge');
-var bcycle = require('../');
+var database = require('../database');
+var publicapi = require('../publicapi');
 
 var yargs = require('yargs')
-  .command('fetch', 'Fetch the station statuses from a single url')
-  .command('watch', 'Periodically fetch the station statuses from a url and store')
+  .command('initialize', 'Initialize the database and fetch current programs')
+  .command('loop', 'Periodically fetch the station statuses from a url and store')
   .describe({
-    url: 'station list url',
+    key: 'B-cycle API key',
     interval: 'interval to wait between fetches while watching (in milliseconds)',
     help: 'print this help message',
     verbose: 'print extra output',
@@ -14,8 +15,8 @@ var yargs = require('yargs')
   })
   .boolean(['help', 'verbose', 'version'])
   .default({
-    url: 'https://austin.bcycle.com/stations/station-locations',
-    interval: 5*60*1000, // 5 minutes
+    key: process.env.BCYCLE_API_KEY,
+    interval: 60*1000, // every 60 seconds
     verbose: process.env.DEBUG !== undefined,
   });
 
@@ -29,18 +30,35 @@ else if (argv.version) {
   console.log(require('../package').version);
 }
 else {
-  argv = yargs.demand(1, 'you must provide a valid command').demand('url').argv;
+  argv = yargs.demand(1, 'you must provide a valid command').argv;
+  var public_api = new publicapi.PublicAPI(argv.key);
   var command = argv._[0];
-  if (command === 'fetch') {
-    bcycle.fetchStationStatuses(argv.url, function(error, station_statuses) {
+  if (command === 'initialize') {
+    database.initialize(function(error) {
       if (error) throw error;
-      console.log(JSON.stringify(station_statuses));
+      database.fetchPrograms(public_api, function(error) {
+        if (error) throw error;
+        // delete the program with no kiosks
+        database.db.Delete('program')
+        .whereEqual({bcycle_program_id: 49})
+        .execute(function(error) {
+          if (error) throw error;
+          logger.info('Done with initialization');
+          process.exit(0);
+        });
+      });
     });
   }
-  else if (command === 'watch') {
-    bcycle.watch(argv.url, argv.interval, function(error) {
+  else if (command === 'fetchNext') {
+    database.fetchNext(public_api, function(error) {
       if (error) throw error;
-      // watch should never callback without an error
+      process.exit(0);
+    });
+  }
+  else if (command === 'loop') {
+    database.loop(public_api, argv.interval, function(error) {
+      if (error) throw error;
+      // loop should never callback without an error
       process.exit(1);
     });
   }
@@ -48,3 +66,4 @@ else {
     yargs.showHelp();
   }
 }
+

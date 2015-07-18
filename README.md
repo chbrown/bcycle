@@ -1,27 +1,12 @@
 # `bcycle`
 
-First, install [phantomjs](http://phantomjs.org/): `brew install phantomjs`
+Install [bcycle](https://www.npmjs.com/package/bcycle): `npm install -g bcycle`
 
-Make sure `phantomjs` is on your `PATH`: `which phantomjs`
+Add a `BCYCLE_API_KEY` variable to your environment.
 
-Then install [bcycle](https://www.npmjs.com/package/bcycle): `npm install -g bcycle`
+Run `bcycle initialize` once to create the database in a PostgreSQL instance on localhost and fetch the list of programs.
 
-And run one of the following:
-
-    bcycle fetch https://rapidcity.bcycle.com/station-map
-    bcycle fetch https://greatrides.bcycle.com/station-map
-    bcycle fetch https://denver.bcycle.com/
-    bcycle fetch https://boulder.bcycle.com/map
-    bcycle fetch https://greenbikeslc.org/station-map
-    bcycle fetch https://fortworth.bcycle.com/station-map
-    bcycle fetch https://sanantonio.bcycle.com/station-map
-    bcycle fetch https://austin.bcycle.com/stations/station-locations
-    bcycle fetch https://houston.bcycle.com/station-map
-    bcycle fetch https://kc.bcycle.com/station-map
-    bcycle fetch https://desmoines.bcycle.com/station-map
-    bcycle fetch https://heartland.bcycle.com/station-map
-
-Or the URL of the "Station Map" page of any of the other cities that B-cycle services.
+Then run `bcycle loop` to start the watch loop.
 
 
 ## License
