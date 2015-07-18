@@ -1,5 +1,4 @@
-/// <reference path="type_declarations/node/node.d.ts" />
-/// <reference path="type_declarations/request/request.d.ts" />
+/// <reference path="type_declarations/index.d.ts" />
 import request = require('request');
 
 export interface Program {

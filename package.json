@@ -12,6 +12,8 @@
   "dependencies": {
     "async": "*",
     "loge": "*",
+    "http-enhanced": "*",
+    "regex-router": "*",
     "request": "*",
     "sqlcmd-pg": "*",
     "yargs": "*"

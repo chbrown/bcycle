@@ -1,5 +1,4 @@
-/// <reference path="type_declarations/node/node.d.ts" />
-/// <reference path="type_declarations/async/async.d.ts" />
+/// <reference path="type_declarations/index.d.ts" />
 var path = require('path');
 var async = require('async');
 var logger = require('loge');

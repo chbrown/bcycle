@@ -1,5 +1,4 @@
-/// <reference path="type_declarations/node/node.d.ts" />
-/// <reference path="type_declarations/request/request.d.ts" />
+/// <reference path="type_declarations/index.d.ts" />
 var request = require('request');
 var PublicAPI = (function () {
     function PublicAPI(ApiKey) {

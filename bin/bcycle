@@ -2,10 +2,13 @@
 var logger = require('loge');
 var database = require('../database');
 var publicapi = require('../publicapi');
+var server = require('../server');
 
 var yargs = require('yargs')
-  .command('initialize', 'Initialize the database and fetch current programs')
-  .command('loop', 'Periodically fetch the station statuses from a url and store')
+  .command('initialize', "Initialize the database and fetch current programs")
+  .command('fetchNext', "Fetch the next (last fetched) kiosk statuses and store them in the database")
+  .command('loop', "Periodically fetch each program's kiosk statuses and store them in the database")
+  .command('server', "Start the HTTP API server")
   .describe({
     key: 'B-cycle API key',
     interval: 'interval to wait between fetches while watching (in milliseconds)',
@@ -17,6 +20,8 @@ var yargs = require('yargs')
   .default({
     key: process.env.BCYCLE_API_KEY,
     interval: 60*1000, // every 60 seconds
+    hostname: process.env.HOSTNAME || '127.0.0.1',
+    port: parseInt(process.env.PORT, 10) || 80,
     verbose: process.env.DEBUG !== undefined,
   });
 
@@ -62,8 +67,10 @@ else {
       process.exit(1);
     });
   }
+  else if (command === 'server') {
+    server.listen(argv.port, argv.hostname);
+  }
   else {
     yargs.showHelp();
   }
 }
-

@@ -1,5 +1,4 @@
-/// <reference path="type_declarations/node/node.d.ts" />
-/// <reference path="type_declarations/async/async.d.ts" />
+/// <reference path="type_declarations/index.d.ts" />
 import path = require('path');
 import async = require('async');
 var logger = require('loge');
@@ -30,7 +29,7 @@ export function initialize(callback: (error: Error) => void) {
 }
 
 // these interfaces represent the database tables
-interface Program {
+export interface Program {
   id: number; // PK
   bcycle_program_id: number;
   name: string;
@@ -39,7 +38,7 @@ interface Program {
   url?: string;
   created: Date;
 }
-interface Kiosk {
+export interface Kiosk {
   id: number; // PK
   program_id: number; // FK
   bcycle_id: number;
@@ -56,7 +55,7 @@ interface Kiosk {
   is_event_based: boolean;
   created: Date;
 }
-interface Status {
+export interface Status {
   id: number; // PK
   kiosk_id: number; // FK
   docks_available: number;
