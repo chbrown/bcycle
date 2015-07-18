@@ -1,0 +1,20 @@
+{
+  "name": "bcycle",
+  "description": "B-cycle station status crawler",
+  "keywords": ["bcycle"],
+  "version": "0.0.0",
+  "homepage": "https://github.com/chbrown/bcycle",
+  "repository": "git://github.com/chbrown/bcycle.git",
+  "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
+  "license": "MIT",
+  "dependencies": {
+    "async": "*",
+    "loge": "*",
+    "request": "*",
+    "sqlcmd-pg": "*",
+    "yargs": "*"
+  },
+  "bin": {
+    "bcycle": "bin/bcycle"
+  }
+}

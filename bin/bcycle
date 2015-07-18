@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+var logger = require('loge');
+var bcycle = require('../');
+
+var yargs = require('yargs')
+  .command('fetch', 'Fetch the station statuses from a single url')
+  .command('watch', 'Periodically fetch the station statuses from a url and store')
+  .describe({
+    url: 'station list url',
+    interval: 'interval to wait between fetches while watching (in milliseconds)',
+    help: 'print this help message',
+    verbose: 'print extra output',
+    version: 'print version',
+  })
+  .boolean(['help', 'verbose', 'version'])
+  .default({
+    url: 'https://austin.bcycle.com/stations/station-locations',
+    interval: 5*60*1000, // 5 minutes
+    verbose: process.env.DEBUG !== undefined,
+  });
+
+var argv = yargs.argv;
+logger.level = argv.verbose ? 'debug' : 'info';
+
+if (argv.help) {
+  yargs.showHelp();
+}
+else if (argv.version) {
+  console.log(require('../package').version);
+}
+else {
+  argv = yargs.demand(1, 'you must provide a valid command').demand('url').argv;
+  var command = argv._[0];
+  if (command === 'fetch') {
+    bcycle.fetchStationStatuses(argv.url, function(error, station_statuses) {
+      if (error) throw error;
+      console.log(JSON.stringify(station_statuses));
+    });
+  }
+  else if (command === 'watch') {
+    bcycle.watch(argv.url, argv.interval, function(error) {
+      if (error) throw error;
+      // watch should never callback without an error
+      process.exit(1);
+    });
+  }
+  else {
+    yargs.showHelp();
+  }
+}
