@@ -13,6 +13,7 @@
     "async": "*",
     "loge": "*",
     "http-enhanced": "*",
+    "moment": "*",
     "regex-router": "*",
     "request": "*",
     "sqlcmd-pg": "*",
