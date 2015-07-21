@@ -46,7 +46,7 @@ R.get(/^\/statuses(\?|$)/, (req, res: any) => {
 R.get(/^\/programs(\?|$)/, (req, res: any) => {
   db.Select('program INNER JOIN kiosk ON kiosk.program_id = program.id')
   .add([
-    'program.id', 'program.name', 'program.latitude', 'program.longitude',
+    'program.id', 'program.name', 'program.latitude', 'program.longitude', 'program.last_fetched',
     // ::integer converts from long so that `pg` parses it as a number
     'COUNT(kiosk.id)::integer AS kiosks',
   ])
