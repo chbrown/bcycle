@@ -2,6 +2,7 @@
 var http = require('http-enhanced');
 var logger = require('loge');
 import url = require('url');
+import moment = require('moment');
 import Router = require('regex-router');
 
 import {Program, Kiosk, Status, db} from './database';
@@ -17,20 +18,44 @@ R.get(/^\/statuses(\?|$)/, (req, res: any) => {
     'kiosk.bcycle_id', 'kiosk.name', 'kiosk.description',
     'kiosk.street', 'kiosk.city', 'kiosk.state', 'kiosk.zip_code', 'kiosk.country',
     'kiosk.latitude', 'kiosk.longitude', 'kiosk.time_zone', 'kiosk.status', 'kiosk.is_event_based',
-    'status.docks_available', 'status.bikes_available',
+    'status.docks_available', 'status.bikes_available', 'status.fetched',
   ])
   .orderBy('fetched DESC')
-  .limit(1000);
 
   if (urlObj.query.programId) {
+    // if you specify a particular program, you get a whole day's worth
     var program_id = parseInt(urlObj.query.programId, 10);
-    query = query.whereEqual({program_id: program_id});
+    var one_day_ago = (new Date().getTime())
+    query = query
+      .whereEqual({program_id: program_id})
+      .where('fetched > ?', moment().subtract(1, 'day').toDate());
+  }
+  else {
+    // if you don't specify a program, you only get the last 1000
+    var limit = Math.min(parseInt(urlObj.query.limit || 1000, 10), 1000);
+    query = query.limit(limit);
   }
 
   query.execute((error: Error, statuses: Status[]) => {
     if (error) return res.error(error);
 
     res.json(statuses);
+  });
+});
+
+R.get(/^\/programs(\?|$)/, (req, res: any) => {
+  db.Select('program INNER JOIN kiosk ON kiosk.program_id = program.id')
+  .add([
+    'program.id', 'program.name', 'program.latitude', 'program.longitude',
+    // ::integer converts from long so that `pg` parses it as a number
+    'COUNT(kiosk.id)::integer AS kiosks',
+  ])
+  .orderBy('program.name')
+  .groupBy('program.id')
+  .execute((error: Error, programs: Program[]) => {
+    if (error) return res.error(error);
+
+    res.json(programs);
   });
 });
 
