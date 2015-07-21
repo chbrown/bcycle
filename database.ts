@@ -96,7 +96,10 @@ function findOrCreateKiosk(kiosk: PublicAPIKiosk,
                            program_id: number,
                            callback: (error: Error, kiosk?: Kiosk) => void) {
   db.SelectOne('kiosk')
-  .whereEqual({bcycle_id: kiosk.Id})
+  .whereEqual({
+    program_id: program_id,
+    bcycle_id: kiosk.Id,
+  })
   .execute((error: Error, existing_kiosk: Kiosk) => {
     if (error) return callback(error);
     if (existing_kiosk) {
@@ -104,8 +107,8 @@ function findOrCreateKiosk(kiosk: PublicAPIKiosk,
     }
     db.InsertOne('kiosk')
     .set({
-      bcycle_id: kiosk.Id,
       program_id: program_id,
+      bcycle_id: kiosk.Id,
       name: kiosk.Name,
       description: kiosk.PublicText,
       street: kiosk.Address.Street,

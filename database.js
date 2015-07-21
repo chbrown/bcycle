@@ -54,7 +54,10 @@ The given program_id should be an internal `program` table `id` value.
 */
 function findOrCreateKiosk(kiosk, program_id, callback) {
     exports.db.SelectOne('kiosk')
-        .whereEqual({ bcycle_id: kiosk.Id })
+        .whereEqual({
+        program_id: program_id,
+        bcycle_id: kiosk.Id,
+    })
         .execute(function (error, existing_kiosk) {
         if (error)
             return callback(error);
@@ -63,8 +66,8 @@ function findOrCreateKiosk(kiosk, program_id, callback) {
         }
         exports.db.InsertOne('kiosk')
             .set({
-            bcycle_id: kiosk.Id,
             program_id: program_id,
+            bcycle_id: kiosk.Id,
             name: kiosk.Name,
             description: kiosk.PublicText,
             street: kiosk.Address.Street,
