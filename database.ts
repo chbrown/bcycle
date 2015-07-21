@@ -136,7 +136,7 @@ export function fetchNext(public_api: PublicAPI, callback: (error?: Error) => vo
     public_api.listProgramKiosks(program.bcycle_program_id, (error, public_api_kiosks) => {
       if (error) return callback(error);
 
-      async.each(public_api_kiosks, (public_api_kiosk, callback) => {
+      async.eachLimit(public_api_kiosks, 10, (public_api_kiosk, callback) => {
         findOrCreateKiosk(public_api_kiosk, program.id, (error, kiosk) => {
           if (error) return callback(error);
 

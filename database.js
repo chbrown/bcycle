@@ -93,7 +93,7 @@ function fetchNext(public_api, callback) {
         public_api.listProgramKiosks(program.bcycle_program_id, function (error, public_api_kiosks) {
             if (error)
                 return callback(error);
-            async.each(public_api_kiosks, function (public_api_kiosk, callback) {
+            async.eachLimit(public_api_kiosks, 10, function (public_api_kiosk, callback) {
                 findOrCreateKiosk(public_api_kiosk, program.id, function (error, kiosk) {
                     if (error)
                         return callback(error);
