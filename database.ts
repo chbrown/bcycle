@@ -125,11 +125,15 @@ function findOrCreateKiosk(kiosk: PublicAPIKiosk,
 }
 
 export function fetchNext(public_api: PublicAPI, callback: (error?: Error) => void) {
-  // find which program is the oldest
-  db.SelectOne('program_last_fetched')
-  .orderBy("COALESCE(last_fetched, '1970-01-01')")
-  .execute((error: Error, program: Program) => {
+  // find which program is the oldest and update it in one go.
+  // this is not entirely race-condition free, but pretty close!
+  db.query(`UPDATE program AS t1 SET last_fetched = NOW()
+    FROM (SELECT * FROM program ORDER BY last_fetched LIMIT 1) AS t2
+    WHERE t1.id = t2.id
+    RETURNING *`, [], (error: Error, programs: Program[]) => {
     if (error) return callback(error);
+
+    var program = programs[0];
 
     logger.debug(`[${new Date().toISOString()}] fetchNext: program.id=${program.id}`);
 

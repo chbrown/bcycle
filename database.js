@@ -83,12 +83,12 @@ function findOrCreateKiosk(kiosk, program_id, callback) {
     });
 }
 function fetchNext(public_api, callback) {
-    // find which program is the oldest
-    exports.db.SelectOne('program_last_fetched')
-        .orderBy("COALESCE(last_fetched, '1970-01-01')")
-        .execute(function (error, program) {
+    // find which program is the oldest and update it in one go.
+    // this is not entirely race-condition free, but pretty close!
+    exports.db.query("UPDATE program AS t1 SET last_fetched = NOW()\n    FROM (SELECT * FROM program ORDER BY last_fetched LIMIT 1) AS t2\n    WHERE t1.id = t2.id\n    RETURNING *", [], function (error, programs) {
         if (error)
             return callback(error);
+        var program = programs[0];
         logger.debug("[" + new Date().toISOString() + "] fetchNext: program.id=" + program.id);
         public_api.listProgramKiosks(program.bcycle_program_id, function (error, public_api_kiosks) {
             if (error)
