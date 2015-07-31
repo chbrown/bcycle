@@ -60,7 +60,7 @@ R.get(/^\/programs(\?|$)/, (req, res: any) => {
 });
 
 /** GET /info
-Show npm-search-server package metadata
+Show bcycle package metadata
 */
 R.get(/^\/info$/, (req, res: any, m) => {
   var info = {

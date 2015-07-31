@@ -52,7 +52,7 @@ R.get(/^\/programs(\?|$)/, function (req, res) {
     });
 });
 /** GET /info
-Show npm-search-server package metadata
+Show bcycle package metadata
 */
 R.get(/^\/info$/, function (req, res, m) {
     var info = {
