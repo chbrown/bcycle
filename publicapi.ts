@@ -1,5 +1,4 @@
-/// <reference path="type_declarations/index.d.ts" />
-import request = require('request');
+import * as request from 'request';
 
 export interface Program {
   ProgramId: string;

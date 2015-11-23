@@ -1,10 +1,10 @@
-/// <reference path="type_declarations/index.d.ts" />
-import path = require('path');
-import async = require('async');
-var logger = require('loge');
+import * as async from 'async';
+import {join} from 'path';
+import {logger} from 'loge';
+
 var sqlcmd = require('sqlcmd-pg');
 
-import {Program as PublicAPIProgram, Kiosk as PublicAPIKiosk, PublicAPI} from 'publicapi';
+import {Program as PublicAPIProgram, Kiosk as PublicAPIKiosk, PublicAPI} from './publicapi';
 
 export var db = new sqlcmd.Connection({
   host: '127.0.0.1',
@@ -23,7 +23,7 @@ export function initialize(callback: (error: Error) => void) {
   db.createDatabaseIfNotExists(error => {
     if (error) return callback(error);
 
-    var migrations_dirpath = path.join(__dirname, 'migrations');
+    var migrations_dirpath = join(__dirname, 'migrations');
     db.executePatches('_migrations', migrations_dirpath, callback);
   });
 }

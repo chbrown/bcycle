@@ -1,14 +1,13 @@
-/// <reference path="type_declarations/index.d.ts" />
-var http = require('http-enhanced');
-var logger = require('loge');
-var url = require('url');
+var loge_1 = require('loge');
+var url_1 = require('url');
 var moment = require('moment');
-var Router = require('regex-router');
+var regex_router_1 = require('regex-router');
 var database_1 = require('./database');
 var package_json = require('./package.json');
-var R = new Router();
+var http = require('http-enhanced');
+var R = new regex_router_1.default();
 R.get(/^\/statuses(\?|$)/, function (req, res) {
-    var urlObj = url.parse(req.url, true);
+    var urlObj = url_1.parse(req.url, true);
     var query = database_1.db.Select('status INNER JOIN kiosk ON kiosk.id = status.kiosk_id')
         .add([
         'kiosk.bcycle_id', 'kiosk.name', 'kiosk.description',
@@ -66,7 +65,7 @@ R.get(/^\/info$/, function (req, res, m) {
     res.json(info);
 });
 var server = http.createServer(function (req, res) {
-    logger.debug('%s %s', req.method, req.url);
+    loge_1.logger.debug('%s %s', req.method, req.url);
     // enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', '*');
@@ -74,6 +73,6 @@ var server = http.createServer(function (req, res) {
 });
 server.on('listening', function () {
     var address = server.address();
-    logger.info("server listening on http://" + address.address + ":" + address.port);
+    loge_1.logger.info("server listening on http://" + address.address + ":" + address.port);
 });
 module.exports = server;

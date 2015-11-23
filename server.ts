@@ -1,17 +1,16 @@
-/// <reference path="type_declarations/index.d.ts" />
-var http = require('http-enhanced');
-var logger = require('loge');
-import url = require('url');
-import moment = require('moment');
-import Router = require('regex-router');
-
+import {logger} from 'loge';
+import {parse as parseUrl} from 'url';
+import * as moment from 'moment';
+import Router from 'regex-router';
 import {Program, Kiosk, Status, db} from './database';
 var package_json = require('./package.json');
+
+var http = require('http-enhanced');
 
 var R = new Router();
 
 R.get(/^\/statuses(\?|$)/, (req, res: any) => {
-  var urlObj = url.parse(req.url, true);
+  var urlObj = parseUrl(req.url, true);
 
   var query = db.Select('status INNER JOIN kiosk ON kiosk.id = status.kiosk_id')
   .add([

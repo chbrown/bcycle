@@ -1,7 +1,9 @@
-DTS := node/node async/async request/request form-data/form-data moment/moment moment/moment-node
+BIN := node_modules/.bin
 
-type_declarations: $(DTS:%=type_declarations/DefinitelyTyped/%.d.ts)
+all: server.js
 
-type_declarations/DefinitelyTyped/%:
-	mkdir -p $(@D)
-	curl -s https://raw.githubusercontent.com/chbrown/DefinitelyTyped/master/$* > $@
+$(BIN)/tsc:
+	npm install
+
+%.js: %.ts $(BIN)/tsc
+	$(BIN)/tsc

@@ -1,7 +1,6 @@
-/// <reference path="type_declarations/index.d.ts" />
-var path = require('path');
 var async = require('async');
-var logger = require('loge');
+var path_1 = require('path');
+var loge_1 = require('loge');
 var sqlcmd = require('sqlcmd-pg');
 exports.db = new sqlcmd.Connection({
     host: '127.0.0.1',
@@ -12,13 +11,13 @@ exports.db = new sqlcmd.Connection({
 // attach local logger to sqlcmd.Connection log events
 exports.db.on('log', function (ev) {
     var args = [ev.format].concat(ev.args);
-    logger[ev.level].apply(logger, args);
+    loge_1.logger[ev.level].apply(loge_1.logger, args);
 });
 function initialize(callback) {
     exports.db.createDatabaseIfNotExists(function (error) {
         if (error)
             return callback(error);
-        var migrations_dirpath = path.join(__dirname, 'migrations');
+        var migrations_dirpath = path_1.join(__dirname, 'migrations');
         exports.db.executePatches('_migrations', migrations_dirpath, callback);
     });
 }
@@ -27,7 +26,7 @@ exports.initialize = initialize;
 Give it a PublicAPI Program object, get back an instantiated local database Program.
 */
 function findOrCreateProgram(program, callback) {
-    logger.debug('findOrCreateProgram: %j', program);
+    loge_1.logger.debug('findOrCreateProgram: %j', program);
     exports.db.SelectOne('program')
         .whereEqual({ bcycle_program_id: program.ProgramId })
         .execute(function (error, existing_program) {
@@ -92,7 +91,7 @@ function fetchNext(public_api, callback) {
         if (error)
             return callback(error);
         var program = programs[0];
-        logger.debug("[" + new Date().toISOString() + "] fetchNext: program.id=" + program.id);
+        loge_1.logger.debug("[" + new Date().toISOString() + "] fetchNext: program.id=" + program.id);
         public_api.listProgramKiosks(program.bcycle_program_id, function (error, public_api_kiosks) {
             if (error)
                 return callback(error);
@@ -111,7 +110,7 @@ function fetchNext(public_api, callback) {
             }, function (error) {
                 if (error)
                     return callback(error);
-                logger.debug("[" + new Date().toISOString() + "] fetchNext: inserting " + public_api_kiosks.length + " statuses");
+                loge_1.logger.debug("[" + new Date().toISOString() + "] fetchNext: inserting " + public_api_kiosks.length + " statuses");
                 callback();
             });
         });

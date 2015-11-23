@@ -6,7 +6,10 @@
   ],
   "version": "0.4.1",
   "homepage": "https://github.com/chbrown/bcycle",
-  "repository": "git://github.com/chbrown/bcycle.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chbrown/bcycle.git"
+  },
   "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
   "license": "MIT",
   "dependencies": {
@@ -18,6 +21,10 @@
     "request": "*",
     "sqlcmd-pg": "*",
     "yargs": "*"
+  },
+  "devDependencies": {
+    "declarations": "*",
+    "typescript": "next"
   },
   "bin": {
     "bcycle": "bin/bcycle"

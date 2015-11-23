@@ -1,4 +1,3 @@
-/// <reference path="type_declarations/index.d.ts" />
 var request = require('request');
 var PublicAPI = (function () {
     function PublicAPI(ApiKey) {

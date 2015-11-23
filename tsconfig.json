@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES5"
+  },
+  "files": [
+    "node_modules/declarations/async/async.d.ts",
+    "node_modules/declarations/node/node.d.ts",
+    "node_modules/declarations/request/request.d.ts",
+    "node_modules/declarations/moment/moment.d.ts",
+    "database.ts",
+    "publicapi.ts",
+    "server.ts"
+  ]
+}
