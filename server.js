@@ -1,8 +1,9 @@
-var loge_1 = require('loge');
-var url_1 = require('url');
-var moment = require('moment');
-var regex_router_1 = require('regex-router');
-var database_1 = require('./database');
+"use strict";
+var loge_1 = require("loge");
+var url_1 = require("url");
+var moment = require("moment");
+var regex_router_1 = require("regex-router");
+var database_1 = require("./database");
 var package_json = require('./package.json');
 var http = require('http-enhanced');
 var R = new regex_router_1.default();

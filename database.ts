@@ -14,7 +14,7 @@ export var db = new sqlcmd.Connection({
 });
 
 // attach local logger to sqlcmd.Connection log events
-db.on('log', function(ev) {
+db.on('log', ev => {
   var args = [ev.format].concat(ev.args);
   logger[ev.level].apply(logger, args);
 });

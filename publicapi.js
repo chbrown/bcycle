@@ -1,4 +1,5 @@
-var request = require('request');
+"use strict";
+var request = require("request");
 var PublicAPI = (function () {
     function PublicAPI(ApiKey) {
         this.ApiKey = ApiKey;
@@ -48,5 +49,5 @@ var PublicAPI = (function () {
         });
     };
     return PublicAPI;
-})();
+}());
 exports.PublicAPI = PublicAPI;

@@ -1,14 +1,71 @@
 #!/usr/bin/env node
-var logger = require('loge');
+var loge = require('loge');
 var database = require('../database');
 var publicapi = require('../publicapi');
 var server = require('../server');
 
-var yargs = require('yargs')
-  .command('initialize', "Initialize the database and fetch current programs")
-  .command('fetchNext', "Fetch the next (last fetched) kiosk statuses and store them in the database")
-  .command('loop', "Periodically fetch each program's kiosk statuses and store them in the database")
-  .command('server', "Start the HTTP API server")
+var logger = loge.logger;
+
+var commands = [
+  {
+    id: 'initialize',
+    description: "Initialize the database and fetch current programs",
+    run(public_api, argv) {
+      database.initialize(error => {
+        if (error) throw error;
+        database.fetchPrograms(public_api, error => {
+          if (error) throw error;
+          // delete the program with no kiosks
+          database.db.Delete('program')
+          .whereEqual({bcycle_program_id: 49})
+          .execute(error => {
+            if (error) throw error;
+            logger.info('Done with initialization');
+            process.exit(0);
+          });
+        });
+      });
+    },
+  },
+  {
+    id: 'fetchNext',
+    description: "Fetch the next (last fetched) kiosk statuses and store them in the database",
+    run(public_api, argv) {
+      database.fetchNext(public_api, error => {
+        if (error) throw error;
+        process.exit(0);
+      });
+    },
+  },
+  {
+    id: 'loop',
+    description: "Periodically fetch each program's kiosk statuses and store them in the database",
+    run(public_api, argv) {
+      database.loop(public_api, argv.interval, error => {
+        if (error) throw error;
+        // loop should never callback without an error
+        process.exit(1);
+      });
+    },
+  },
+  {
+    id: 'server',
+    description: "Start the HTTP API server",
+    run(public_api, argv) {
+      server.listen(argv.port, argv.hostname);
+    },
+  },
+];
+
+function main() {
+  var usage = [
+    'Usage: pdfi <command> <filename> [<args>]',
+    '',
+    'Commands:',
+    ...commands.map(command => `  ${command.id}: ${command.description}`),
+  ].join('\n');
+  var argvparser = require('optimist')
+  .usage(usage)
   .describe({
     key: 'B-cycle API key',
     interval: 'interval to wait between fetches while watching (in milliseconds)',
@@ -25,52 +82,29 @@ var yargs = require('yargs')
     verbose: process.env.DEBUG !== undefined,
   });
 
-var argv = yargs.argv;
-logger.level = argv.verbose ? 'debug' : 'info';
+  var argv = argvparser.argv;
+  logger.level = argv.verbose ? loge.Level.debug : loge.Level.info;
 
-if (argv.help) {
-  yargs.showHelp();
-}
-else if (argv.version) {
-  console.log(require('../package').version);
-}
-else {
-  argv = yargs.demand(1, 'you must provide a valid command').argv;
-  var public_api = new publicapi.PublicAPI(argv.key);
-  var command = argv._[0];
-  if (command === 'initialize') {
-    database.initialize(function(error) {
-      if (error) throw error;
-      database.fetchPrograms(public_api, function(error) {
-        if (error) throw error;
-        // delete the program with no kiosks
-        database.db.Delete('program')
-        .whereEqual({bcycle_program_id: 49})
-        .execute(function(error) {
-          if (error) throw error;
-          logger.info('Done with initialization');
-          process.exit(0);
-        });
-      });
-    });
+  if (argv.help) {
+    argvparser.showHelp();
   }
-  else if (command === 'fetchNext') {
-    database.fetchNext(public_api, function(error) {
-      if (error) throw error;
-      process.exit(0);
-    });
-  }
-  else if (command === 'loop') {
-    database.loop(public_api, argv.interval, function(error) {
-      if (error) throw error;
-      // loop should never callback without an error
-      process.exit(1);
-    });
-  }
-  else if (command === 'server') {
-    server.listen(argv.port, argv.hostname);
+  else if (argv.version) {
+    console.log(require('../package').version);
   }
   else {
-    yargs.showHelp();
+    argv = argvparser.demand(1).argv;
+    var public_api = new publicapi.PublicAPI(argv.key);
+    var command_id = argv._[0];
+    var command = commands.filter(command => command.id === command_id)[0];
+    if (command === undefined) {
+      console.log(`Unrecognized command: "${command_id}"`);
+      argvparser.showHelp();
+      process.exit(1);
+    }
+    command.run(public_api, argv);
   }
+}
+
+if (require.main === module) {
+  main();
 }
