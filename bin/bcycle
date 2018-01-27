@@ -2,7 +2,6 @@
 const loge = require('loge')
 const database = require('../database')
 const publicapi = require('../publicapi')
-const server = require('../server')
 
 const logger = loge.logger
 
@@ -48,13 +47,6 @@ const commands = [
       })
     },
   },
-  {
-    id: 'server',
-    description: "Start the HTTP API server",
-    run(public_api, argv) {
-      server.listen(argv.port, argv.hostname)
-    },
-  },
 ]
 
 function main() {
@@ -77,8 +69,6 @@ function main() {
   .default({
     key: process.env.BCYCLE_API_KEY,
     interval: 60*1000, // every 60 seconds
-    hostname: process.env.HOSTNAME || '127.0.0.1',
-    port: parseInt(process.env.PORT, 10) || 80,
     verbose: process.env.DEBUG !== undefined,
   })
 

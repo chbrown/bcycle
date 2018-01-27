@@ -24,11 +24,13 @@
   "devDependencies": {
     "@types/async": "^1.4.29",
     "@types/node": "latest",
+    "@types/optimist": "^0.0.29",
     "@types/request": "^2.0.13",
     "typescript": "^2.6.2"
   },
   "bin": {
-    "bcycle": "bin/bcycle"
+    "bcycle": "bin/bcycle",
+    "bcycle-server": "server.js"
   },
   "scripts": {
     "prepare": "tsc",

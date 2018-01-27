@@ -1,7 +1,7 @@
 import {parse as parseUrl} from 'url'
-import {IncomingMessage, ServerResponse} from 'http'
-import * as http from 'http'
-import {logger} from 'loge'
+import {IncomingMessage, ServerResponse, createServer} from 'http'
+import * as optimist from 'optimist'
+import {logger, Level} from 'loge'
 import Router from 'regex-router'
 
 import {Program, Kiosk, Status, db} from './database'
@@ -82,7 +82,7 @@ R.get(/^\/info$/, (req, res, m) => {
   sendJson(res, {name, version, description, homepage, author, license})
 })
 
-const server = http.createServer((req, res) => {
+const server = createServer((req, res) => {
   logger.debug('%s %s', req.method, req.url)
   // enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -94,4 +94,36 @@ server.on('listening', () => {
   logger.info(`server listening on http://${address.address}:${address.port}`)
 })
 
-export = server
+function main() {
+  const argvparser = optimist.usage(`Usage: npm start [options]
+
+    Start the HTTP API server`)
+  .describe({
+    help: 'print this help message',
+    verbose: 'print extra output',
+    version: 'print version',
+  })
+  .boolean(['help', 'verbose', 'version'])
+  .default({
+    hostname: process.env.HOSTNAME || '127.0.0.1',
+    port: parseInt(process.env.PORT, 10) || 80,
+    verbose: process.env.DEBUG !== undefined,
+  })
+
+  const argv = argvparser.argv
+  logger.level = argv.verbose ? Level.debug : Level.info
+
+  if (argv.help) {
+    argvparser.showHelp()
+  }
+  else if (argv.version) {
+    console.log(require('./package').version)
+  }
+  else {
+    server.listen(argv.port, argv.hostname)
+  }
+}
+
+if (require.main === module) {
+  main()
+}
