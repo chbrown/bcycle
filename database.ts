@@ -19,7 +19,7 @@ db.on('log', ev => {
   logger[ev.level].apply(logger, args)
 })
 
-export function initialize(callback: (error: Error) => void) {
+export function createAndRunMigrations(callback: (error: Error) => void) {
   db.createDatabaseIfNotExists(error => {
     if (error) return callback(error)
 
