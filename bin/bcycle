@@ -59,7 +59,7 @@ var commands = [
 
 function main() {
   var usage = [
-    'Usage: pdfi <command> <filename> [<args>]',
+    'Usage: bcycle <command> <filename> [<args>]',
     '',
     'Commands:',
     ...commands.map(command => `  ${command.id}: ${command.description}`),
