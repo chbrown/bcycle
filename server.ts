@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {parse as parseUrl} from 'url'
 import {IncomingMessage, ServerResponse, createServer} from 'http'
 import * as optimist from 'optimist'
