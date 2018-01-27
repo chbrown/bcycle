@@ -4,7 +4,8 @@ import {logger} from 'loge'
 import {executePatches} from 'sql-patch'
 import {Connection} from 'sqlcmd-pg'
 
-import {Program as PublicAPIProgram, Kiosk as PublicAPIKiosk, PublicAPI} from './publicapi'
+import {Program as PublicAPIProgram, Kiosk as PublicAPIKiosk,
+        listPrograms, listProgramKiosks} from './publicapi'
 
 export const db = new Connection({
   host: '127.0.0.1',
@@ -64,9 +65,10 @@ export interface Status {
 }
 
 /**
-Give it a PublicAPI Program object, get back an instantiated local database Program.
+Give it a PublicAPIProgram object, get back an instantiated local database Program.
 */
-function findOrCreateProgram(program: PublicAPIProgram, callback: (error: Error, program?: Program) => void) {
+function findOrCreateProgram(program: PublicAPIProgram,
+                             callback: (error: Error, program?: Program) => void) {
   logger.debug('findOrCreateProgram: %j', program)
   db.SelectOne('program')
   .whereEqual({bcycle_program_id: program.ProgramId})
@@ -88,7 +90,7 @@ function findOrCreateProgram(program: PublicAPIProgram, callback: (error: Error,
 }
 
 /**
-Give it a PublicAPI Kiosk object, get back an instantiated local database Kiosk.
+Give it a PublicAPIKiosk object, get back an instantiated local database Kiosk.
 
 The given program_id should be an internal `program` table `id` value.
 */
@@ -127,7 +129,8 @@ function findOrCreateKiosk(kiosk: PublicAPIKiosk,
   })
 }
 
-export function fetchNext(public_api: PublicAPI, callback: (error?: Error) => void) {
+export function fetchNext(ApiKey: string,
+                          callback: (error?: Error) => void) {
   // find which program is the oldest and update it in one go.
   // this is not entirely race-condition free, but pretty close!
   db.query(`UPDATE program AS t1 SET last_fetched = NOW()
@@ -140,7 +143,7 @@ export function fetchNext(public_api: PublicAPI, callback: (error?: Error) => vo
 
     logger.debug(`[${new Date().toISOString()}] fetchNext: program.id=${program.id}`)
 
-    public_api.listProgramKiosks(program.bcycle_program_id, (error, public_api_kiosks) => {
+    listProgramKiosks(ApiKey, program.bcycle_program_id, (error, public_api_kiosks) => {
       if (error) return callback(error)
 
       async.eachLimit(public_api_kiosks, 10, (public_api_kiosk, callback) => {
@@ -165,17 +168,17 @@ export function fetchNext(public_api: PublicAPI, callback: (error?: Error) => vo
   })
 }
 
-export function fetchPrograms(public_api: PublicAPI, callback: (error: Error) => void) {
-  public_api.listPrograms((error, programs) => {
+export function fetchPrograms(ApiKey: string, callback: (error: Error) => void) {
+  listPrograms(ApiKey, (error, programs) => {
     if (error) return callback(error)
 
     async.each(programs, findOrCreateProgram, callback)
   })
 }
 
-export function loop(public_api: PublicAPI, interval_ms: number, callback: (error: Error) => void) {
+export function loop(ApiKey: string, interval_ms: number, callback: (error: Error) => void) {
   setInterval(() => {
-    fetchNext(public_api, error => {
+    fetchNext(ApiKey, error => {
       if (error) return callback(error)
       // if there's an error, we leak the interval, but we're gonna exit anyway,
       // so it's not a big deal
