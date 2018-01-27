@@ -28,5 +28,9 @@
   },
   "bin": {
     "bcycle": "bin/bcycle"
+  },
+  "scripts": {
+    "prepare": "tsc",
+    "clean": "tsc -d --listEmittedFiles | sed 's/^TSFILE: //' | xargs rm -v"
   }
 }
