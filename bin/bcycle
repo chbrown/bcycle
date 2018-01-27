@@ -1,40 +1,40 @@
 #!/usr/bin/env node
-var loge = require('loge');
-var database = require('../database');
-var publicapi = require('../publicapi');
-var server = require('../server');
+const loge = require('loge')
+const database = require('../database')
+const publicapi = require('../publicapi')
+const server = require('../server')
 
-var logger = loge.logger;
+const logger = loge.logger
 
-var commands = [
+const commands = [
   {
     id: 'initialize',
     description: "Initialize the database and fetch current programs",
-    run(public_api, argv) {
+    run(public_api) {
       database.initialize(error => {
-        if (error) throw error;
+        if (error) throw error
         database.fetchPrograms(public_api, error => {
-          if (error) throw error;
+          if (error) throw error
           // delete the program with no kiosks
           database.db.Delete('program')
           .whereEqual({bcycle_program_id: 49})
           .execute(error => {
-            if (error) throw error;
-            logger.info('Done with initialization');
-            process.exit(0);
-          });
-        });
-      });
+            if (error) throw error
+            logger.info('Done with initialization')
+            process.exit(0)
+          })
+        })
+      })
     },
   },
   {
     id: 'fetchNext',
     description: "Fetch the next (last fetched) kiosk statuses and store them in the database",
-    run(public_api, argv) {
+    run(public_api) {
       database.fetchNext(public_api, error => {
-        if (error) throw error;
-        process.exit(0);
-      });
+        if (error) throw error
+        process.exit(0)
+      })
     },
   },
   {
@@ -42,29 +42,29 @@ var commands = [
     description: "Periodically fetch each program's kiosk statuses and store them in the database",
     run(public_api, argv) {
       database.loop(public_api, argv.interval, error => {
-        if (error) throw error;
+        if (error) throw error
         // loop should never callback without an error
-        process.exit(1);
-      });
+        process.exit(1)
+      })
     },
   },
   {
     id: 'server',
     description: "Start the HTTP API server",
     run(public_api, argv) {
-      server.listen(argv.port, argv.hostname);
+      server.listen(argv.port, argv.hostname)
     },
   },
-];
+]
 
 function main() {
-  var usage = [
+  const usage = [
     'Usage: bcycle <command> <filename> [<args>]',
     '',
     'Commands:',
     ...commands.map(command => `  ${command.id}: ${command.description}`),
-  ].join('\n');
-  var argvparser = require('optimist')
+  ].join('\n')
+  const argvparser = require('optimist')
   .usage(usage)
   .describe({
     key: 'B-cycle API key',
@@ -80,31 +80,31 @@ function main() {
     hostname: process.env.HOSTNAME || '127.0.0.1',
     port: parseInt(process.env.PORT, 10) || 80,
     verbose: process.env.DEBUG !== undefined,
-  });
+  })
 
-  var argv = argvparser.argv;
-  logger.level = argv.verbose ? loge.Level.debug : loge.Level.info;
+  let argv = argvparser.argv
+  logger.level = argv.verbose ? loge.Level.debug : loge.Level.info
 
   if (argv.help) {
-    argvparser.showHelp();
+    argvparser.showHelp()
   }
   else if (argv.version) {
-    console.log(require('../package').version);
+    console.log(require('../package').version)
   }
   else {
-    argv = argvparser.demand(1).argv;
-    var public_api = new publicapi.PublicAPI(argv.key);
-    var command_id = argv._[0];
-    var command = commands.filter(command => command.id === command_id)[0];
+    argv = argvparser.demand(1).argv
+    const public_api = new publicapi.PublicAPI(argv.key)
+    const command_id = argv._[0]
+    const command = commands.filter(command => command.id === command_id)[0]
     if (command === undefined) {
-      console.log(`Unrecognized command: "${command_id}"`);
-      argvparser.showHelp();
-      process.exit(1);
+      console.log(`Unrecognized command: "${command_id}"`)
+      argvparser.showHelp()
+      process.exit(1)
     }
-    command.run(public_api, argv);
+    command.run(public_api, argv)
   }
 }
 
 if (require.main === module) {
-  main();
+  main()
 }

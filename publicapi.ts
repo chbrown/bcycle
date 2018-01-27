@@ -1,37 +1,37 @@
-import * as request from 'request';
+import * as request from 'request'
 
 export interface Program {
-  ProgramId: string;
-  Name: string;
+  ProgramId: string
+  Name: string
   MapCenter: {
-    Latitude: number;
-    Longitude: number;
+    Latitude: number
+    Longitude: number
   }
 }
 
 export interface Kiosk {
-  Id: string;
-  Name: string;
-  PublicText: string;
+  Id: string
+  Name: string
+  PublicText: string
   Address: {
-    Street: string;
-    City: string;
-    State: string;
-    ZipCode: string;
-    Country: string;
-    Html: string;
-  };
+    Street: string
+    City: string
+    State: string
+    ZipCode: string
+    Country: string
+    Html: string
+  }
   Location: {
-    Latitude: number;
-    Longitude: number;
-  };
-  BikesAvailable: number;
-  DocksAvailable: number;
-  TotalDocks: number;
-  HoursOfOperation: string;
-  TimeZone: string;
-  Status: string;
-  IsEventBased: boolean;
+    Latitude: number
+    Longitude: number
+  }
+  BikesAvailable: number
+  DocksAvailable: number
+  TotalDocks: number
+  HoursOfOperation: string
+  TimeZone: string
+  Status: string
+  IsEventBased: boolean
 }
 
 export class PublicAPI {
@@ -47,19 +47,19 @@ export class PublicAPI {
       },
       gzip: true,
       json: true,
-    });
+    })
   }
 
   listPrograms(callback: (error: Error, programs?: Program[]) => void) {
     this.request.get({
       url: 'https://publicapi.bcycle.com/api/1.0/ListPrograms',
     }, (error, response, body) => {
-      if (error) return callback(error);
+      if (error) return callback(error)
       if (response.statusCode != 200) {
-        return callback(new Error(`PublicAPI error: ${response.statusCode}: ${body}`));
+        return callback(new Error(`PublicAPI error: ${response.statusCode}: ${body}`))
       }
-      callback(null, body);
-    });
+      callback(null, body)
+    })
   }
 
   /**
@@ -70,11 +70,11 @@ export class PublicAPI {
     this.request.get({
       url: `https://publicapi.bcycle.com/api/1.0/ListProgramKiosks/${id}`,
     }, (error, response, body) => {
-      if (error) return callback(error);
+      if (error) return callback(error)
       if (response.statusCode != 200) {
-        return callback(new Error(`PublicAPI error: ${response.statusCode}: ${body}`));
+        return callback(new Error(`PublicAPI error: ${response.statusCode}: ${body}`))
       }
-      callback(null, body);
-    });
+      callback(null, body)
+    })
   }
 }

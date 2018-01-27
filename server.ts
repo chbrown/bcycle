@@ -1,37 +1,37 @@
-import {parse as parseUrl} from 'url';
-import {IncomingMessage, ServerResponse} from 'http';
-import * as http from 'http';
-import {logger} from 'loge';
-import Router from 'regex-router';
+import {parse as parseUrl} from 'url'
+import {IncomingMessage, ServerResponse} from 'http'
+import * as http from 'http'
+import {logger} from 'loge'
+import Router from 'regex-router'
 
-import {Program, Kiosk, Status, db} from './database';
-const package_json = require('./package.json');
+import {Program, Kiosk, Status, db} from './database'
+const package_json = require('./package.json')
 
 function sendError(res: ServerResponse, error: Error): ServerResponse {
-  res.statusCode = 400;
-  res.setHeader('Content-Type', 'text/plain');
+  res.statusCode = 400
+  res.setHeader('Content-Type', 'text/plain')
   const body = `${error.name}: ${error.message}`
-  res.end(body);
-  return res;
+  res.end(body)
+  return res
 }
 
 function sendJson(res: ServerResponse, object: any): ServerResponse {
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'application/json')
   let body = ''
   try {
-    body = JSON.stringify(object);
+    body = JSON.stringify(object)
   }
   catch (exc) {
-    body = JSON.stringify(`JSON serialization error: ${exc.toString()}`);
+    body = JSON.stringify(`JSON serialization error: ${exc.toString()}`)
   }
-  res.end(body);
-  return res;
+  res.end(body)
+  return res
 }
 
-const R = new Router();
+const R = new Router()
 
 R.get(/^\/statuses(\?|$)/, (req, res) => {
-  const urlObj = parseUrl(req.url, true);
+  const urlObj = parseUrl(req.url, true)
 
   let query = db.Select('status INNER JOIN kiosk ON kiosk.id = status.kiosk_id')
                 .add('kiosk.bcycle_id', 'kiosk.name', 'kiosk.description',
@@ -42,23 +42,23 @@ R.get(/^\/statuses(\?|$)/, (req, res) => {
 
   if (urlObj.query.programId) {
     // if you specify a particular program, you get a whole day's worth
-    const program_id = parseInt(urlObj.query.programId as string, 10);
-    const now = new Date();
-    const one_day_ago = new Date(now.getTime() - 24*60*60*1000);
-    query = query.whereEqual({program_id}).where('fetched > ?', one_day_ago);
+    const program_id = parseInt(urlObj.query.programId as string, 10)
+    const now = new Date()
+    const one_day_ago = new Date(now.getTime() - 24*60*60*1000)
+    query = query.whereEqual({program_id}).where('fetched > ?', one_day_ago)
   }
   else {
     // if you don't specify a program, you only get the last 1000
-    const limit = Math.min(parseInt(urlObj.query.limit as string || '1000', 10), 1000);
-    query = query.limit(limit);
+    const limit = Math.min(parseInt(urlObj.query.limit as string || '1000', 10), 1000)
+    query = query.limit(limit)
   }
 
   query.execute((error: Error, statuses: Status[]) => {
-    if (error) return sendError(res, error);
+    if (error) return sendError(res, error)
 
-    sendJson(res, statuses);
-  });
-});
+    sendJson(res, statuses)
+  })
+})
 
 R.get(/^\/programs(\?|$)/, (req, res) => {
   db.Select('program INNER JOIN kiosk ON kiosk.program_id = program.id')
@@ -68,30 +68,30 @@ R.get(/^\/programs(\?|$)/, (req, res) => {
     .orderBy('program.name')
     .groupBy('program.id')
     .execute((error: Error, programs: Program[]) => {
-      if (error) return sendError(res, error);
+      if (error) return sendError(res, error)
 
-      sendJson(res, programs);
-    });
-});
+      sendJson(res, programs)
+    })
+})
 
 /** GET /info
 Show bcycle package metadata
 */
 R.get(/^\/info$/, (req, res, m) => {
-  const {name, version, description, homepage, author, license} = package_json;
-  sendJson(res, {name, version, description, homepage, author, license});
-});
+  const {name, version, description, homepage, author, license} = package_json
+  sendJson(res, {name, version, description, homepage, author, license})
+})
 
 const server = http.createServer((req, res) => {
-  logger.debug('%s %s', req.method, req.url);
+  logger.debug('%s %s', req.method, req.url)
   // enable CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  R.route(req, res);
-});
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', '*')
+  R.route(req, res)
+})
 server.on('listening', () => {
-  const address = server.address();
-  logger.info(`server listening on http://${address.address}:${address.port}`);
-});
+  const address = server.address()
+  logger.info(`server listening on http://${address.address}:${address.port}`)
+})
 
-export = server;
+export = server
