@@ -29,7 +29,7 @@
     "typescript": "^2.6.2"
   },
   "bin": {
-    "bcycle": "bin/bcycle",
+    "bcycle-fetch": "fetch.js",
     "bcycle-server": "server.js"
   },
   "scripts": {

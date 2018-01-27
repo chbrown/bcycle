@@ -175,13 +175,3 @@ export function fetchPrograms(ApiKey: string, callback: (error: Error) => void) 
     async.each(programs, findOrCreateProgram, callback)
   })
 }
-
-export function loop(ApiKey: string, interval_ms: number, callback: (error: Error) => void) {
-  setInterval(() => {
-    fetchNext(ApiKey, error => {
-      if (error) return callback(error)
-      // if there's an error, we leak the interval, but we're gonna exit anyway,
-      // so it's not a big deal
-    })
-  }, interval_ms)
-}

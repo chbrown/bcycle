@@ -5,6 +5,7 @@
   },
   "files": [
     "database.ts",
+    "fetch.ts",
     "publicapi.ts",
     "server.ts"
   ]
