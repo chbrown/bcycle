@@ -1,21 +1,21 @@
 import * as async from 'async';
 import {join} from 'path';
 import {logger} from 'loge';
-
-var sqlcmd = require('sqlcmd-pg');
+import {executePatches} from 'sql-patch';
+import {Connection} from 'sqlcmd-pg';
 
 import {Program as PublicAPIProgram, Kiosk as PublicAPIKiosk, PublicAPI} from './publicapi';
 
-export var db = new sqlcmd.Connection({
+export const db = new Connection({
   host: '127.0.0.1',
-  port: '5432',
+  port: 5432,
   user: 'postgres',
   database: 'bcycle',
 });
 
 // attach local logger to sqlcmd.Connection log events
 db.on('log', ev => {
-  var args = [ev.format].concat(ev.args);
+  const args = [ev.format].concat(ev.args);
   logger[ev.level].apply(logger, args);
 });
 
@@ -23,8 +23,8 @@ export function initialize(callback: (error: Error) => void) {
   db.createDatabaseIfNotExists(error => {
     if (error) return callback(error);
 
-    var migrations_dirpath = join(__dirname, 'migrations');
-    db.executePatches('_migrations', migrations_dirpath, callback);
+    const migrations_dirpath = join(__dirname, 'migrations');
+    executePatches(db, '_migrations', migrations_dirpath, callback);
   });
 }
 
@@ -136,7 +136,7 @@ export function fetchNext(public_api: PublicAPI, callback: (error?: Error) => vo
     RETURNING *`, [], (error: Error, programs: Program[]) => {
     if (error) return callback(error);
 
-    var program = programs[0];
+    const program = programs[0];
 
     logger.debug(`[${new Date().toISOString()}] fetchNext: program.id=${program.id}`);
 

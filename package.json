@@ -13,18 +13,16 @@
   "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
   "license": "MIT",
   "dependencies": {
-    "async": "1.4.0",
-    "http-enhanced": "0.5.3",
+    "async": "^1.4.2",
     "loge": "1.0.4",
-    "moment": "2.10.3",
-    "optimist": "0.6.1",
-    "regex-router": "1.1.1",
-    "request": "2.79.0",
-    "sqlcmd-pg": "0.2.9"
+    "optimist": "^0.6.1",
+    "regex-router": "2.0.0",
+    "request": "^2.79.0",
+    "sql-patch": "1.0.1",
+    "sqlcmd-pg": "3.0.0"
   },
   "devDependencies": {
     "@types/async": "^1.4.29",
-    "@types/moment": "^2.13.0",
     "@types/node": "latest",
     "@types/request": "^2.0.13",
     "typescript": "^2.6.2"
